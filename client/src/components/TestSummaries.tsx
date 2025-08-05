@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import type { TestSummary, GenerateCodeRequest } from "../types";
 import { apiService, handleApiError } from "../services/api";
+import { Toast } from "./Toast";
+import { useToast } from "../hooks/useToast";
 
 interface TestSummariesProps {
   summaries: TestSummary[];
@@ -38,6 +40,7 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
   >(new Map());
   const [loadingCode, setLoadingCode] = useState<Set<string>>(new Set());
   const [codeErrors, setCodeErrors] = useState<Map<string, string>>(new Map());
+  const { toast, showSuccess, showError, hideToast } = useToast();
 
   const generateTestCode = async (summary: TestSummary) => {
     // Add summary to loading state
@@ -79,6 +82,12 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
         setGeneratedCodes(
           (prev) => new Map(prev.set(summary.summaryId, newCode))
         );
+        showSuccess(
+          `Test code generated successfully for "${summary.summaryText.slice(
+            0,
+            50
+          )}..."`
+        );
       } else {
         throw new Error("Failed to generate test code");
       }
@@ -87,6 +96,7 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
       setCodeErrors(
         (prev) => new Map(prev.set(summary.summaryId, errorMessage))
       );
+      showError(`Failed to generate test code: ${errorMessage}`);
     } finally {
       setLoadingCode((prev) => {
         const newLoading = new Set(prev);
@@ -163,146 +173,129 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
   }
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-300 rounded-t-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <svg
-                className="w-5 h-5 text-blue-600 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                />
-              </svg>
-              AI Test Summaries
-            </h3>
-            <div className="flex items-center mt-1 space-x-4 text-sm text-gray-600">
-              <span>{summaries.length} suggestions</span>
-              {aiProvider && (
-                <span className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                  {aiProvider}
-                </span>
-              )}
-              {generatedAt && (
-                <span>
-                  Generated {new Date(generatedAt).toLocaleTimeString()}
-                </span>
-              )}
+    <>
+      <div className="bg-white border border-gray-300 rounded-lg">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-300 rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                <svg
+                  className="w-5 h-5 text-blue-600 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  />
+                </svg>
+                AI Test Summaries
+              </h3>
+              <div className="flex items-center mt-1 space-x-4 text-sm text-gray-600">
+                <span>{summaries.length} suggestions</span>
+                {aiProvider && (
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                    {aiProvider}
+                  </span>
+                )}
+                {generatedAt && (
+                  <span>
+                    Generated {new Date(generatedAt).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          <button
-            onClick={onClear}
-            className="text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 px-3 py-1 rounded transition-colors"
-          >
-            Clear
-          </button>
-        </div>
-      </div>
-
-      <div className="max-h-80 overflow-y-auto">
-        {summaries.map((summary, index) => {
-          const generatedCode = generatedCodes.get(summary.summaryId);
-          const isLoadingCode = loadingCode.has(summary.summaryId);
-          const codeError = codeErrors.get(summary.summaryId);
-
-          return (
-            <div
-              key={summary.summaryId}
-              className={`border-b border-gray-100 last:border-b-0 ${
-                index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
-              }`}
+            <button
+              onClick={onClear}
+              className="text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 px-3 py-1 rounded transition-colors"
             >
-              {/* Summary Section */}
-              <div className="p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 mr-3">
-                    <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
-                      {index + 1}
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <div className="max-h-80 overflow-y-auto">
+          {summaries.map((summary, index) => {
+            const generatedCode = generatedCodes.get(summary.summaryId);
+            const isLoadingCode = loadingCode.has(summary.summaryId);
+            const codeError = codeErrors.get(summary.summaryId);
+
+            return (
+              <div
+                key={summary.summaryId}
+                className={`border-b border-gray-100 last:border-b-0 ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                }`}
+              >
+                {/* Summary Section */}
+                <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mr-3">
+                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
+                        {index + 1}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-gray-900 text-sm leading-relaxed">
-                      {summary.summaryText}
-                    </p>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-xs text-gray-500 font-mono">
-                        ID: {summary.summaryId}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => copyCode(summary.summaryText)}
-                          className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
-                        >
-                          Copy Summary
-                        </button>
-                        <button
-                          onClick={() => generateTestCode(summary)}
-                          disabled={isLoadingCode}
-                          className="text-xs bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 px-3 py-1 rounded transition-colors flex items-center"
-                        >
-                          {isLoadingCode ? (
-                            <>
-                              <div className="animate-spin h-3 w-3 border border-white border-t-transparent rounded-full mr-1"></div>
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <svg
-                                className="w-3 h-3 mr-1"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                                />
-                              </svg>
-                              Generate Code
-                            </>
-                          )}
-                        </button>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-900 text-sm leading-relaxed">
+                        {summary.summaryText}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-xs text-gray-500 font-mono">
+                          ID: {summary.summaryId}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => copyCode(summary.summaryText)}
+                            className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
+                          >
+                            Copy Summary
+                          </button>
+                          <button
+                            onClick={() => generateTestCode(summary)}
+                            disabled={isLoadingCode}
+                            className="text-xs bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 px-3 py-1 rounded transition-colors flex items-center"
+                          >
+                            {isLoadingCode ? (
+                              <>
+                                <div className="animate-spin h-3 w-3 border border-white border-t-transparent rounded-full mr-1"></div>
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="w-3 h-3 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                                  />
+                                </svg>
+                                Generate Code
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Code Error Section */}
-              {codeError && (
-                <div className="px-4 pb-4">
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <div className="flex items-center">
-                      <svg
-                        className="w-4 h-4 text-red-400 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span className="text-red-800 text-xs">{codeError}</span>
-                      <button
-                        onClick={() => clearGeneratedCode(summary.summaryId)}
-                        className="ml-auto text-red-600 hover:text-red-800"
-                      >
+                {/* Code Error Section */}
+                {codeError && (
+                  <div className="px-4 pb-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <div className="flex items-center">
                         <svg
-                          className="w-3 h-3"
+                          className="w-4 h-4 text-red-400 mr-2"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -311,46 +304,18 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Generated Code Section */}
-              {generatedCode && (
-                <div className="border-t border-gray-200 bg-gray-50">
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                          <span className="text-sm font-medium text-gray-900">
-                            Generated Test Code
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-xs text-gray-600">
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                            {generatedCode.language}
-                          </span>
-                          <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                            {generatedCode.testFramework}
-                          </span>
-                          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                            {generatedCode.aiProvider}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
+                        <span className="text-red-800 text-xs">
+                          {codeError}
+                        </span>
                         <button
-                          onClick={() => copyCode(generatedCode.code)}
-                          className="text-xs bg-blue-600 text-white hover:bg-blue-700 px-3 py-1 rounded transition-colors flex items-center"
+                          onClick={() => clearGeneratedCode(summary.summaryId)}
+                          className="ml-auto text-red-600 hover:text-red-800"
                         >
                           <svg
-                            className="w-3 h-3 mr-1"
+                            className="w-3 h-3"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -359,45 +324,97 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                              d="M6 18L18 6M6 6l12 12"
                             />
                           </svg>
-                          Copy Code
-                        </button>
-                        <button
-                          onClick={() => clearGeneratedCode(summary.summaryId)}
-                          className="text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded transition-colors"
-                        >
-                          Clear
                         </button>
                       </div>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
-                      <code className="language-javascript">
-                        {generatedCode.code}
-                      </code>
-                    </pre>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                )}
 
-      <div className="bg-gray-50 px-4 py-3 border-t border-gray-300 rounded-b-lg">
-        <div className="flex items-center justify-between text-sm">
-          <div className="text-gray-600">
-            💡 These are AI-generated suggestions. Review and adapt them for
-            your specific testing needs.
+                {/* Generated Code Section */}
+                {generatedCode && (
+                  <div className="border-t border-gray-200 bg-gray-50">
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span className="text-sm font-medium text-gray-900">
+                              Generated Test Code
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-xs text-gray-600">
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                              {generatedCode.language}
+                            </span>
+                            <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                              {generatedCode.testFramework}
+                            </span>
+                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                              {generatedCode.aiProvider}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => copyCode(generatedCode.code)}
+                            className="text-xs bg-blue-600 text-white hover:bg-blue-700 px-3 py-1 rounded transition-colors flex items-center"
+                          >
+                            <svg
+                              className="w-3 h-3 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                              />
+                            </svg>
+                            Copy Code
+                          </button>
+                          <button
+                            onClick={() =>
+                              clearGeneratedCode(summary.summaryId)
+                            }
+                            className="text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
+                        <code className="language-javascript">
+                          {generatedCode.code}
+                        </code>
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="bg-gray-50 px-4 py-3 border-t border-gray-300 rounded-b-lg">
+          <div className="flex items-center justify-between text-sm">
+            <div className="text-gray-600">
+              💡 These are AI-generated suggestions. Review and adapt them for
+              your specific testing needs.
+            </div>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+              Export All
+            </button>
           </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-            Export All
-          </button>
         </div>
       </div>
-    </div>
+      <Toast {...toast} onClose={hideToast} />
+    </>
   );
 };
