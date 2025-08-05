@@ -72,3 +72,43 @@ export interface AppState {
   loading: LoadingState;
   error: string | null;
 }
+
+// AI Test Summary Types (matching backend)
+export interface FileInput {
+  filename: string;
+  content: string;
+}
+
+export interface TestSummary {
+  summaryId: string;
+  summaryText: string;
+}
+
+export interface GenerateSummaryRequest {
+  files: FileInput[];
+}
+
+export interface GenerateSummaryResponse {
+  success: boolean;
+  summaries: TestSummary[];
+  total: number;
+  generatedAt: string;
+  aiProvider?: string;
+}
+
+// Test Code Generation Types (matching backend)
+export interface GenerateCodeRequest {
+  summaryId: string;
+  summaryText: string;
+  fileContent: string;
+  filename?: string;
+}
+
+export interface GenerateCodeResponse {
+  success: boolean;
+  code: string;
+  language: string;
+  testFramework: string;
+  generatedAt: string;
+  aiProvider?: string;
+}

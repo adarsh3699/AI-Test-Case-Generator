@@ -1,5 +1,12 @@
 import axios from "axios";
-import { RepoResponse, FileTreeResponse } from "../types";
+import {
+  RepoResponse,
+  FileTreeResponse,
+  GenerateSummaryRequest,
+  GenerateSummaryResponse,
+  GenerateCodeRequest,
+  GenerateCodeResponse,
+} from "../types";
 
 const API_BASE_URL = "http://localhost:4000";
 
@@ -39,6 +46,32 @@ export const apiService = {
    */
   async checkHealth(): Promise<any> {
     const response = await api.get("/api/health");
+    return response.data;
+  },
+
+  /**
+   * Generate AI-powered test case summaries from selected files
+   */
+  async generateTestSummaries(
+    request: GenerateSummaryRequest
+  ): Promise<GenerateSummaryResponse> {
+    const response = await api.post<GenerateSummaryResponse>(
+      "/api/generate-summary",
+      request
+    );
+    return response.data;
+  },
+
+  /**
+   * Generate test code for a specific test summary
+   */
+  async generateTestCode(
+    request: GenerateCodeRequest
+  ): Promise<GenerateCodeResponse> {
+    const response = await api.post<GenerateCodeResponse>(
+      "/api/generate-code",
+      request
+    );
     return response.data;
   },
 };

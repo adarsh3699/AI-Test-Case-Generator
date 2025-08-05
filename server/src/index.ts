@@ -2,7 +2,16 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GitHubService } from "./githubService";
-import { RepoResponse, FileTreeResponse, ErrorResponse } from "./types";
+import { AIService } from "./aiService";
+import {
+  RepoResponse,
+  FileTreeResponse,
+  ErrorResponse,
+  GenerateSummaryRequest,
+  GenerateSummaryResponse,
+  GenerateCodeRequest,
+  GenerateCodeResponse,
+} from "./types";
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +40,9 @@ if (process.env.GITHUB_TOKEN) {
     "⚠️  GITHUB_TOKEN not found in environment variables. GitHub endpoints will not work."
   );
 }
+
+// Initialize AI service
+const aiService = new AIService();
 
 // Helper function to check if GitHub is configured
 const requireGitHub = (req: Request, res: Response, next: NextFunction) => {
@@ -173,6 +185,136 @@ app.post("/api/generate-testcases", (req: Request, res: Response) => {
   });
 });
 
+/**
+ * POST /api/generate-summary
+ * Generate AI-powered test case summaries from selected files
+ */
+app.post("/api/generate-summary", async (req: Request, res: Response) => {
+  try {
+    const requestBody: GenerateSummaryRequest = req.body;
+
+    // Validate request body
+    if (!requestBody.files || !Array.isArray(requestBody.files)) {
+      const errorResponse: ErrorResponse = {
+        success: false,
+        error: "Invalid request format",
+        message: "Request body must contain a 'files' array",
+      };
+      return res.status(400).json(errorResponse);
+    }
+
+    if (requestBody.files.length === 0) {
+      const errorResponse: ErrorResponse = {
+        success: false,
+        error: "No files provided",
+        message: "At least one file must be provided for analysis",
+      };
+      return res.status(400).json(errorResponse);
+    }
+
+    // Validate each file in the array
+    for (const file of requestBody.files) {
+      if (!file.filename || !file.content) {
+        const errorResponse: ErrorResponse = {
+          success: false,
+          error: "Invalid file format",
+          message: "Each file must have 'filename' and 'content' properties",
+        };
+        return res.status(400).json(errorResponse);
+      }
+    }
+
+    console.log(
+      `📝 Generating test summaries for ${requestBody.files.length} files...`
+    );
+
+    // Generate summaries using AI service
+    const { summaries, aiProvider } = await aiService.generateTestSummaries(
+      requestBody.files
+    );
+
+    const response: GenerateSummaryResponse = {
+      success: true,
+      summaries,
+      total: summaries.length,
+      generatedAt: new Date().toISOString(),
+      aiProvider,
+    };
+
+    console.log(
+      `✅ Generated ${summaries.length} test summaries using ${aiProvider}`
+    );
+    res.json(response);
+  } catch (error: any) {
+    console.error("Error generating test summaries:", error.message);
+
+    const errorResponse: ErrorResponse = {
+      success: false,
+      error: "Failed to generate test summaries",
+      message: error.message,
+    };
+
+    res.status(500).json(errorResponse);
+  }
+});
+
+/**
+ * POST /api/generate-code
+ * Generate test code for a specific test summary
+ */
+app.post("/api/generate-code", async (req: Request, res: Response) => {
+  try {
+    const requestBody: GenerateCodeRequest = req.body;
+
+    // Validate request body
+    if (
+      !requestBody.summaryId ||
+      !requestBody.summaryText ||
+      !requestBody.fileContent
+    ) {
+      const errorResponse: ErrorResponse = {
+        success: false,
+        error: "Invalid request format",
+        message:
+          "Request body must contain 'summaryId', 'summaryText', and 'fileContent'",
+      };
+      return res.status(400).json(errorResponse);
+    }
+
+    console.log(
+      `🧪 Generating test code for summary: ${requestBody.summaryId}...`
+    );
+
+    // Generate test code using AI service
+    const { code, language, testFramework, aiProvider } =
+      await aiService.generateTestCode(requestBody);
+
+    const response: GenerateCodeResponse = {
+      success: true,
+      code,
+      language,
+      testFramework,
+      generatedAt: new Date().toISOString(),
+      aiProvider,
+    };
+
+    console.log(
+      `✅ Generated test code using ${aiProvider} (${language}/${testFramework})`
+    );
+    res.json(response);
+  } catch (error: any) {
+    console.error("Error generating test code:", error.message);
+
+    const errorResponse: ErrorResponse = {
+      success: false,
+      error: "Failed to generate test code",
+      message: error.message,
+    };
+
+    res.status(500).json(errorResponse);
+  }
+});
+
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
@@ -203,5 +345,11 @@ app.listen(PORT, () => {
   console.log(`📁 GitHub repos: http://localhost:${PORT}/api/repos`);
   console.log(
     `📂 Repository files: http://localhost:${PORT}/api/repos/:owner/:repo/files`
+  );
+  console.log(
+    `🤖 AI test summaries: POST http://localhost:${PORT}/api/generate-summary`
+  );
+  console.log(
+    `🧪 AI test code generation: POST http://localhost:${PORT}/api/generate-code`
   );
 });

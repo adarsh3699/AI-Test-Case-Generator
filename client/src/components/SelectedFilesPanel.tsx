@@ -1,5 +1,7 @@
-import React from "react";
-import { CodeFile } from "../types";
+import React, { useState } from "react";
+import type { CodeFile, TestSummary, FileInput } from "../types";
+import { apiService, handleApiError } from "../services/api";
+import { TestSummaries } from "./TestSummaries";
 
 interface SelectedFilesPanelProps {
   files: CodeFile[];
@@ -14,6 +16,12 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
   onFileToggle,
   onClearAll,
 }) => {
+  const [testSummaries, setTestSummaries] = useState<TestSummary[]>([]);
+  const [aiProvider, setAiProvider] = useState<string>("");
+  const [generatedAt, setGeneratedAt] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const selectedFilesList = files.filter((file) =>
     selectedFiles.has(file.path)
   );
@@ -53,6 +61,61 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
     const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+  };
+
+  const generateTestSummaries = async () => {
+    if (selectedFilesList.length === 0) {
+      setError("No files selected for analysis");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Prepare file inputs for the API
+      const fileInputs: FileInput[] = await Promise.all(
+        selectedFilesList.map(async (file) => {
+          // TODO: In a real implementation, fetch actual file content from GitHub API
+          // For now, use file path as placeholder since we need content for AI analysis
+          const placeholderContent = `// File: ${file.path}
+// Size: ${formatSize(file.size)}
+// Language: ${file.language || "Unknown"}
+// TODO: Replace with actual file content from ${
+            file.download_url || "GitHub API"
+          }`;
+
+          return {
+            filename: file.path.split("/").pop() || file.path,
+            content: placeholderContent,
+          };
+        })
+      );
+
+      const response = await apiService.generateTestSummaries({
+        files: fileInputs,
+      });
+
+      if (response.success) {
+        setTestSummaries(response.summaries);
+        setAiProvider(response.aiProvider || "");
+        setGeneratedAt(response.generatedAt);
+        setError(null);
+      } else {
+        setError("Failed to generate test summaries");
+      }
+    } catch (error) {
+      setError(handleApiError(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearSummaries = () => {
+    setTestSummaries([]);
+    setAiProvider("");
+    setGeneratedAt("");
+    setError(null);
   };
 
   if (selectedFiles.size === 0) {
@@ -184,11 +247,96 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
               • {formatSize(getTotalSize())}
             </span>
           </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-            Generate Tests
+          <button
+            onClick={generateTestSummaries}
+            disabled={loading || selectedFiles.size === 0}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                Generating...
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  />
+                </svg>
+                Generate Test Summaries
+              </>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="flex items-center">
+            <svg
+              className="w-5 h-5 text-red-400 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="text-red-800 text-sm">{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-600 hover:text-red-800"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Test Summaries Display */}
+      {(testSummaries.length > 0 || loading) && (
+        <div className="mt-4">
+          <TestSummaries
+            summaries={testSummaries}
+            aiProvider={aiProvider}
+            generatedAt={generatedAt}
+            loading={loading}
+            onClear={clearSummaries}
+            selectedFiles={selectedFilesList.map((file) => ({
+              filename: file.path.split("/").pop() || file.path,
+              content: `// TODO: Fetch actual content from ${
+                file.download_url || "GitHub API"
+              }`,
+            }))}
+          />
+        </div>
+      )}
     </div>
   );
 };
