@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { GitHubRepo, CodeFile, LoadingState } from "./types";
+import { useState, useEffect, useCallback } from "react";
+import type { GitHubRepo, CodeFile, LoadingState } from "./types";
 import { apiService, handleApiError } from "./services/api";
 import { RepoSelector } from "./components/RepoSelector";
 import { FileList } from "./components/FileList";
@@ -15,17 +15,7 @@ function App() {
   });
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch files when a repository is selected
-  useEffect(() => {
-    if (selectedRepo) {
-      fetchRepositoryFiles(selectedRepo);
-    } else {
-      setFiles([]);
-      setSelectedFiles(new Set());
-    }
-  }, [selectedRepo]);
-
-  const fetchRepositoryFiles = async (repo: GitHubRepo) => {
+  const fetchRepositoryFiles = useCallback(async (repo: GitHubRepo) => {
     setLoading((prev) => ({ ...prev, files: true }));
     setError(null);
     setFiles([]);
@@ -45,9 +35,19 @@ function App() {
     } finally {
       setLoading((prev) => ({ ...prev, files: false }));
     }
-  };
+  }, []);
 
-  const handleFileToggle = (filePath: string) => {
+  // Fetch files when a repository is selected
+  useEffect(() => {
+    if (selectedRepo) {
+      fetchRepositoryFiles(selectedRepo);
+    } else {
+      setFiles([]);
+      setSelectedFiles(new Set());
+    }
+  }, [selectedRepo, fetchRepositoryFiles]);
+
+  const handleFileToggle = useCallback((filePath: string) => {
     setSelectedFiles((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(filePath)) {
@@ -57,15 +57,15 @@ function App() {
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleClearAllFiles = () => {
+  const handleClearAllFiles = useCallback(() => {
     setSelectedFiles(new Set());
-  };
+  }, []);
 
-  const handleRepoLoadingChange = (isLoading: boolean) => {
+  const handleRepoLoadingChange = useCallback((isLoading: boolean) => {
     setLoading((prev) => ({ ...prev, repos: isLoading }));
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">

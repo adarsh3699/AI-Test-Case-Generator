@@ -92,13 +92,16 @@ app.get("/api/repos", requireGitHub, async (req: Request, res: Response) => {
     };
 
     res.json(response);
-  } catch (error: any) {
-    console.error("Error fetching repositories:", error.message);
+  } catch (error: unknown) {
+    console.error(
+      "Error fetching repositories:",
+      error instanceof Error ? error.message : String(error)
+    );
 
     const errorResponse: ErrorResponse = {
       success: false,
       error: "Failed to fetch repositories",
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
     };
 
     res.status(500).json(errorResponse);
@@ -139,20 +142,23 @@ app.get(
       };
 
       res.json(response);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(
         `Error fetching files for ${req.params.owner}/${req.params.repo}:`,
-        error.message
+        error instanceof Error ? error.message : String(error)
       );
 
       const errorResponse: ErrorResponse = {
         success: false,
         error: "Failed to fetch repository files",
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
       };
 
       // Return 404 if repository not found, otherwise 500
-      const statusCode = error.message.includes("Not Found") ? 404 : 500;
+      const statusCode =
+        error instanceof Error && error.message.includes("Not Found")
+          ? 404
+          : 500;
       res.status(statusCode).json(errorResponse);
     }
   }
@@ -245,13 +251,16 @@ app.post("/api/generate-summary", async (req: Request, res: Response) => {
       `✅ Generated ${summaries.length} test summaries using ${aiProvider}`
     );
     res.json(response);
-  } catch (error: any) {
-    console.error("Error generating test summaries:", error.message);
+  } catch (error: unknown) {
+    console.error(
+      "Error generating test summaries:",
+      error instanceof Error ? error.message : String(error)
+    );
 
     const errorResponse: ErrorResponse = {
       success: false,
       error: "Failed to generate test summaries",
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
     };
 
     res.status(500).json(errorResponse);
@@ -302,13 +311,16 @@ app.post("/api/generate-code", async (req: Request, res: Response) => {
       `✅ Generated test code using ${aiProvider} (${language}/${testFramework})`
     );
     res.json(response);
-  } catch (error: any) {
-    console.error("Error generating test code:", error.message);
+  } catch (error: unknown) {
+    console.error(
+      "Error generating test code:",
+      error instanceof Error ? error.message : String(error)
+    );
 
     const errorResponse: ErrorResponse = {
       success: false,
       error: "Failed to generate test code",
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
     };
 
     res.status(500).json(errorResponse);

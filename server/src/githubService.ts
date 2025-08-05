@@ -32,12 +32,22 @@ export class GitHubService {
       );
 
       return response.data;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to fetch repositories: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
+      // Handle axios error response
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        const responseMessage = axiosError.response?.data?.message;
+        if (responseMessage) {
+          throw new Error(`Failed to fetch repositories: ${responseMessage}`);
+        }
+      }
+
+      throw new Error(`Failed to fetch repositories: ${errorMessage}`);
     }
   }
 
@@ -60,11 +70,11 @@ export class GitHubService {
 
       // Filter for code files only
       const codeFiles: CodeFile[] = treeResponse.data.tree
-        .filter((item: any) => {
+        .filter((item: { type: string; path: string }) => {
           if (item.type !== "blob") return false;
           return this.isCodeFile(item.path);
         })
-        .map((item: any) => ({
+        .map((item: { path: string; size?: number; sha: string }) => ({
           path: item.path,
           type: "file" as const,
           language: this.detectLanguage(item.path),
@@ -74,12 +84,24 @@ export class GitHubService {
         }));
 
       return codeFiles;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to fetch repository files: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
+      // Handle axios error response
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        const responseMessage = axiosError.response?.data?.message;
+        if (responseMessage) {
+          throw new Error(
+            `Failed to fetch repository files: ${responseMessage}`
+          );
+        }
+      }
+
+      throw new Error(`Failed to fetch repository files: ${errorMessage}`);
     }
   }
 

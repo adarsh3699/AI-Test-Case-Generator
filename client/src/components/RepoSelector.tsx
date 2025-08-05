@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { GitHubRepo } from "../types";
 import { apiService, handleApiError } from "../services/api";
 
@@ -20,11 +20,7 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    fetchRepositories();
-  }, []);
-
-  const fetchRepositories = async () => {
+  const fetchRepositories = useCallback(async () => {
     onLoadingChange(true);
     onError(null);
 
@@ -40,7 +36,11 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
     } finally {
       onLoadingChange(false);
     }
-  };
+  }, [onLoadingChange, onError]);
+
+  useEffect(() => {
+    fetchRepositories();
+  }, [fetchRepositories]);
 
   const handleRepoSelect = (repo: GitHubRepo) => {
     onRepoSelect(repo);

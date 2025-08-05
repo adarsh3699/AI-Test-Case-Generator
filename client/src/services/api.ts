@@ -12,7 +12,6 @@ const API_BASE_URL = "http://localhost:4000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -44,7 +43,12 @@ export const apiService = {
   /**
    * Check API health and GitHub integration status
    */
-  async checkHealth(): Promise<any> {
+  async checkHealth(): Promise<{
+    status: string;
+    service: string;
+    timestamp: string;
+    github_configured: boolean;
+  }> {
     const response = await api.get("/api/health");
     return response.data;
   },
@@ -77,15 +81,20 @@ export const apiService = {
 };
 
 // Error handling helper
-export const handleApiError = (error: any): string => {
-  if (error.response?.data?.message) {
-    return error.response.data.message;
+export const handleApiError = (error: unknown): string => {
+  if (error && typeof error === "object" && "response" in error) {
+    const axiosError = error as {
+      response?: { data?: { message?: string; error?: string } };
+    };
+    if (axiosError.response?.data?.message) {
+      return axiosError.response.data.message;
+    }
+    if (axiosError.response?.data?.error) {
+      return axiosError.response.data.error;
+    }
   }
-  if (error.response?.data?.error) {
-    return error.response.data.error;
-  }
-  if (error.message) {
-    return error.message;
+  if (error && typeof error === "object" && "message" in error) {
+    return (error as { message: string }).message;
   }
   return "An unexpected error occurred";
 };
