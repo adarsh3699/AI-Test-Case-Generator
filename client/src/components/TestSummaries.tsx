@@ -10,7 +10,6 @@ import {
 	XMarkIcon,
 	ExclamationTriangleIcon,
 	ArrowPathIcon,
-	CloudArrowDownIcon,
 } from "@heroicons/react/24/outline";
 import { SparklesIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 
@@ -179,9 +178,7 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
 								<SparklesIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
 							</div>
 							<div>
-								<h3 className="text-lg md:text-2xl font-bold text-gray-900">
-									AI Test Summaries
-								</h3>
+								<h3 className="text-lg md:text-2xl font-bold text-gray-900">AI Test Summaries</h3>
 								<div className="flex flex-col sm:flex-row sm:items-center mt-2 space-y-1 sm:space-y-0 sm:space-x-6 text-sm">
 									<div className="flex items-center space-x-2">
 										<CheckCircleIcon className="w-4 h-4 text-green-500" />
@@ -208,7 +205,7 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
 					</div>
 				</div>
 
-				<div className="max-h-80 overflow-y-auto custom-scrollbar">
+				<div className="max-h-[32rem] overflow-y-auto custom-scrollbar">
 					{summaries.map((summary, index) => {
 						const generatedCode = generatedCodes.get(summary.summaryId);
 						const isLoadingCode = loadingCode.has(summary.summaryId);
@@ -345,22 +342,6 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
 							</div>
 						);
 					})}
-				</div>
-
-				<div className="glass-dark border-t border-purple-200 px-8 py-6 rounded-b-3xl">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center space-x-3 text-gray-700">
-							<LightBulbIcon className="w-5 h-5 text-yellow-500" />
-							<span className="font-medium">
-								These are AI-generated suggestions. Review and adapt them for your specific testing
-								needs.
-							</span>
-						</div>
-						<button className="btn-primary flex items-center space-x-2">
-							<CloudArrowDownIcon className="w-4 h-4" />
-							<span>Export All</span>
-						</button>
-					</div>
 				</div>
 			</div>
 			<Toast {...toast} onClose={hideToast} />
