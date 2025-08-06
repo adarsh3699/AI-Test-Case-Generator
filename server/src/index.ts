@@ -22,7 +22,9 @@ const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite dev server default port
+    origin: process.env.NODE_ENV === 'production' 
+      ? true // Allow all origins in production (since frontend and backend are on same domain)
+      : "http://localhost:5173", // Vite dev server default port
     credentials: true,
   })
 );
@@ -351,17 +353,23 @@ app.use((req: Request, res: Response) => {
   res.status(404).json(errorResponse);
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Test Case Generator API server running on port ${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📁 GitHub repos: http://localhost:${PORT}/api/repos`);
-  console.log(
-    `📂 Repository files: http://localhost:${PORT}/api/repos/:owner/:repo/files`
-  );
-  console.log(
-    `🤖 AI test summaries: POST http://localhost:${PORT}/api/generate-summary`
-  );
-  console.log(
-    `🧪 AI test code generation: POST http://localhost:${PORT}/api/generate-code`
-  );
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Test Case Generator API server running on port ${PORT}`);
+    console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`📁 GitHub repos: http://localhost:${PORT}/api/repos`);
+    console.log(
+      `📂 Repository files: http://localhost:${PORT}/api/repos/:owner/:repo/files`
+    );
+    console.log(
+      `🤖 AI test summaries: POST http://localhost:${PORT}/api/generate-summary`
+    );
+    console.log(
+      `🧪 AI test code generation: POST http://localhost:${PORT}/api/generate-code`
+    );
+  });
+}
+
+// Export for Vercel
+export default app;

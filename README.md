@@ -127,6 +127,53 @@ This will start:
 
 **Note**: GitHub endpoints require `GITHUB_TOKEN` environment variable to be configured.
 
+## Deployment
+
+### Deploy to Vercel
+
+This project is configured for deployment on Vercel with both the frontend and backend.
+
+#### Prerequisites for Deployment
+
+1. **GitHub Repository**: Push your code to a GitHub repository
+2. **Environment Variables**: You'll need to set these in Vercel dashboard:
+   - `GITHUB_TOKEN` - Your GitHub Personal Access Token
+   - `GEMINI_API_KEY` - Your Google Gemini API key (optional)
+   - `NODE_ENV` - Set to `production`
+
+#### Deployment Steps
+
+1. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Setup Vercel deployment"
+   git push origin main
+   ```
+
+2. **Deploy on Vercel**:
+   - Go to [vercel.com](https://vercel.com) and sign in with GitHub
+   - Click "New Project" and import your repository
+   - Vercel will automatically detect the `vercel.json` configuration
+   - Add your environment variables in the Vercel dashboard:
+     - Go to Project Settings > Environment Variables
+     - Add `GITHUB_TOKEN` and `GEMINI_API_KEY`
+   - Deploy!
+
+3. **Configure GitHub Token**:
+   - Go to GitHub Settings > Developer settings > Personal access tokens
+   - Generate a new token with `repo` and `read:user` scopes
+   - Add this token as `GITHUB_TOKEN` in Vercel environment variables
+
+#### Project Structure for Vercel
+
+The `vercel.json` file configures:
+- **Frontend**: Static build from `client/` directory served at root
+- **Backend**: Serverless functions from `server/src/index.ts` at `/api/*` routes
+- **Environment**: Production environment variables
+- **Routing**: API routes go to backend, everything else to frontend
+
+Your app will be available at: `https://your-project-name.vercel.app`
+
 ### Project Features
 
 - ⚡ **Fast Development**: Vite with SWC for instant HMR
