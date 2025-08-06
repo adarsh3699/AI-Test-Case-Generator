@@ -117,9 +117,9 @@ function App() {
 				)}
 
 				{/* Main Content */}
-				<div className="space-y-8">
+				<div className="space-y-6 md:space-y-8">
 					{/* First Row - Repository Selection & File List */}
-					<div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
 						{/* Repository Selection */}
 						<div className="animate-fade-in-up">
 							<RepoSelector
@@ -137,12 +137,12 @@ function App() {
 								<div className="card hover-lift">
 									<div className="card-header">
 										<div className="flex items-center space-x-3">
-											<div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg shadow-sm">
-												<FolderOpenIcon className="w-5 h-5 text-white" />
+											<div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg shadow-sm">
+												<FolderOpenIcon className="w-4 h-4 md:w-5 md:h-5 text-white" />
 											</div>
 											<div>
-												<h2 className="text-xl font-bold text-gray-900">Repository Files</h2>
-												<p className="text-gray-600 text-sm">
+												<h2 className="text-lg md:text-xl font-bold text-gray-900">Repository Files</h2>
+												<p className="text-gray-600 text-xs md:text-sm">
 													Browse and select files for test case generation
 												</p>
 											</div>
@@ -158,12 +158,12 @@ function App() {
 									</div>
 								</div>
 							) : (
-								<div className="bg-white/60 backdrop-blur-sm border border-gray-200 rounded-2xl p-12 text-center">
-									<div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center animate-subtle-float">
-										<FolderOpenIcon className="w-8 h-8 text-white" />
+								<div className="bg-white/60 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 md:p-12 text-center">
+									<div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center animate-subtle-float">
+										<FolderOpenIcon className="w-6 h-6 md:w-8 md:h-8 text-white" />
 									</div>
-									<h3 className="text-xl font-semibold text-gray-800 mb-3">Ready to Browse Files</h3>
-									<p className="text-gray-600 max-w-sm mx-auto">
+									<h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-3">Ready to Browse Files</h3>
+									<p className="text-gray-600 max-w-sm mx-auto text-sm md:text-base">
 										Select a repository above to view and analyze its files with our AI-powered
 										system
 									</p>
@@ -174,18 +174,18 @@ function App() {
 
 					{/* Second Row - Selected Files & AI Generation */}
 					{selectedFiles.size > 0 && (
-						<div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200 shadow-sm animate-fade-in-up">
-							<div className="mb-6 text-center">
-								<div className="flex items-center justify-center space-x-4 mb-4">
-									<div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-sm">
-										<SparklesIcon className="w-5 h-5 text-white" />
+						<div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-8 border border-gray-200 shadow-sm animate-fade-in-up">
+							<div className="mb-4 md:mb-6 text-center">
+								<div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+									<div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-sm">
+										<SparklesIcon className="w-4 h-4 md:w-5 md:h-5 text-white" />
 									</div>
-									<h2 className="text-2xl font-bold text-gray-900">AI Test Case Generator</h2>
+									<h2 className="text-xl md:text-2xl font-bold text-gray-900">AI Test Case Generator</h2>
 									<div className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-lg shadow-sm">
 										{selectedFiles.size} files selected
 									</div>
 								</div>
-								<p className="text-gray-600 max-w-2xl mx-auto">
+								<p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
 									Generate intelligent test cases and summaries using advanced AI analysis
 								</p>
 							</div>

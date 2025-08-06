@@ -12,7 +12,7 @@ import {
   TrashIcon,
   EyeIcon,
 } from "@heroicons/react/24/outline";
-import { SparklesIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 
 interface SelectedFilesPanelProps {
   files: CodeFile[];
@@ -142,26 +142,26 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
     <>
       <div className="glass rounded-3xl shadow-professional-xl hover:shadow-professional-xl transition-all duration-300 overflow-hidden border border-white/20">
         <div className="card-header bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center justify-center w-12 h-12 gradient-primary rounded-2xl">
-                <DocumentIcon className="w-6 h-6 text-white" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+            <div className="flex items-center space-x-3 md:space-x-4">
+              <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 gradient-primary rounded-xl md:rounded-2xl">
+                <DocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                <h3 className="text-lg md:text-2xl font-bold text-gray-900 flex flex-col sm:flex-row sm:items-center">
                   Selected Files
-                  <span className="ml-4 px-4 py-2 gradient-success text-white text-sm font-bold rounded-2xl shadow-lg">
+                  <span className="mt-1 sm:mt-0 sm:ml-4 px-3 py-1 md:px-4 md:py-2 gradient-success text-white text-xs md:text-sm font-bold rounded-xl md:rounded-2xl shadow-lg">
                     {selectedFiles.size}
                   </span>
                 </h3>
-                <p className="text-gray-600 font-medium mt-1">
+                <p className="text-gray-600 font-medium mt-1 text-sm md:text-base">
                   Total size: {formatSize(getTotalSize())}
                 </p>
               </div>
             </div>
             <button
               onClick={onClearAll}
-              className="btn-danger flex items-center space-x-2"
+              className="btn-danger flex items-center space-x-2 text-sm md:text-base"
             >
               <TrashIcon className="w-4 h-4" />
               <span>Clear All</span>
@@ -173,29 +173,29 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
           {selectedFilesList.map((file, index) => (
             <div
               key={file.path}
-              className={`flex items-center justify-between p-6 border-b border-gray-100 last:border-b-0 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group ${
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-6 border-b border-gray-100 last:border-b-0 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group space-y-3 sm:space-y-0 ${
                 index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
               }`}
             >
-              <div className="flex items-center flex-1 min-w-0 space-x-4">
+              <div className="flex items-center flex-1 min-w-0 space-x-3 md:space-x-4 w-full sm:w-auto">
                 <button
                   onClick={() => onFileToggle(file.path)}
                   className="flex-shrink-0 p-2 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-xl transition-all duration-300 hover-lift"
                   title="Remove file"
                 >
-                  <XMarkIcon className="w-5 h-5" />
+                  <XMarkIcon className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
 
-                <DocumentIcon className="w-6 h-6 text-blue-500 flex-shrink-0" />
+                <DocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-blue-500 flex-shrink-0" />
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-3">
-                    <span className="font-bold text-gray-900 truncate text-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                    <span className="font-bold text-gray-900 truncate text-base md:text-lg">
                       {file.path.split("/").pop()}
                     </span>
                     {file.language && (
                       <span
-                        className={`px-3 py-1 text-sm font-bold rounded-full shadow-sm ${getLanguageColor(
+                        className={`px-2 py-1 md:px-3 md:py-1 text-xs md:text-sm font-bold rounded-full shadow-sm ${getLanguageColor(
                           file.language
                         )}`}
                       >
@@ -232,16 +232,16 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
           ))}
         </div>
 
-        <div className="glass-dark border-t border-blue-200 px-8 py-8">
+        <div className="glass-dark border-t border-blue-200 px-4 py-6 md:px-8 md:py-8">
           <div className="text-center">
-            <div className="mb-6">
-              <h4 className="text-xl font-bold text-gray-800 mb-3">
+            <div className="mb-4 md:mb-6">
+              <h4 className="text-lg md:text-xl font-bold text-gray-800 mb-2 md:mb-3">
                 Ready to Generate AI Test Cases
               </h4>
-              <p className="text-lg text-gray-700 font-medium mb-4">
+              <p className="text-base md:text-lg text-gray-700 font-medium mb-3 md:mb-4">
                 Transform your selected files into comprehensive test suites
               </p>
-              <div className="flex items-center justify-center space-x-6 text-sm">
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="status-online"></div>
                   <span className="font-bold text-gray-700">
@@ -259,16 +259,16 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
             <button
               onClick={generateTestSummaries}
               disabled={loading || selectedFiles.size === 0}
-              className="btn-primary text-xl px-12 py-6 shadow-professional-xl hover:shadow-professional-xl animate-pulse-glow disabled:animate-none flex items-center space-x-3 mx-auto"
+              className="btn-primary text-base md:text-xl px-8 py-4 md:px-12 md:py-6 shadow-professional-xl hover:shadow-professional-xl animate-pulse-glow disabled:animate-none flex items-center space-x-3 mx-auto"
             >
               {loading ? (
                 <>
-                  <BoltIcon className="w-6 h-6 animate-spin" />
+                  <BoltIcon className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
                   <span>Generating AI Test Summaries...</span>
                 </>
               ) : (
                 <>
-                  <SparklesIcon className="w-6 h-6" />
+                  <SparklesIcon className="w-5 h-5 md:w-6 md:h-6" />
                   <span>Generate AI Test Summaries</span>
                 </>
               )}

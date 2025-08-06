@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   ExclamationTriangleIcon,
   XMarkIcon,
@@ -74,11 +74,11 @@ const getPositionClasses = (position: ErrorPosition) => {
     case "fixed-top":
       return "fixed top-4 left-4 right-4 z-50 max-w-4xl mx-auto";
     case "sticky":
-      return "sticky top-4 z-40 mb-6";
+      return "sticky top-4 z-40 mb-4 md:mb-6 mx-4";
     case "toast":
-      return "fixed top-6 right-6 z-50 max-w-md";
+      return "fixed top-4 right-4 z-50 max-w-sm max-sm:left-4 max-sm:right-4 max-sm:max-w-none";
     default: // inline
-      return "mb-8";
+      return "mb-6 md:mb-8 mx-4";
   }
 };
 
@@ -98,6 +98,14 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   const IconComponent = config.icon;
   const displayTitle = title || config.title;
 
+  const handleClose = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      onClose();
+    }, 300);
+  }, [onClose]);
+
   useEffect(() => {
     if (autoDismiss) {
       const timer = setTimeout(() => {
@@ -106,15 +114,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
       return () => clearTimeout(timer);
     }
-  }, [autoDismiss, autoDismissDelay]);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      setIsVisible(false);
-      onClose();
-    }, 300);
-  };
+  }, [autoDismiss, autoDismissDelay, handleClose]);
 
   if (!isVisible) return null;
 
@@ -131,14 +131,14 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     <div className={`${getPositionClasses(position)} ${getAnimationClass()}`}>
       {position === "toast" ? (
         // Modern Toast Design
-        <div className="bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
-          <div className="p-5">
-            <div className="flex items-start space-x-4">
+        <div className="bg-white/95 backdrop-blur-xl border border-white/20 rounded-xl md:rounded-2xl shadow-2xl overflow-hidden">
+          <div className="p-4 md:p-5">
+            <div className="flex items-start space-x-3 md:space-x-4">
               {/* Modern Icon Design */}
               <div
-                className={`flex-shrink-0 p-3 ${config.bgColor} rounded-xl shadow-lg`}
+                className={`flex-shrink-0 p-2 md:p-3 ${config.bgColor} rounded-lg md:rounded-xl shadow-lg`}
               >
-                <IconComponent className={`w-5 h-5 ${config.iconColor}`} />
+                <IconComponent className={`w-4 h-4 md:w-5 md:h-5 ${config.iconColor}`} />
               </div>
 
               {/* Content */}
@@ -146,12 +146,12 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3
-                      className={`text-base font-bold ${config.titleColor} mb-1`}
+                      className={`text-sm md:text-base font-bold ${config.titleColor} mb-1`}
                     >
                       {displayTitle}
                     </h3>
                     <p
-                      className={`${config.textColor} text-sm font-medium leading-relaxed`}
+                      className={`${config.textColor} text-xs md:text-sm font-medium leading-relaxed`}
                     >
                       {error}
                     </p>
@@ -168,7 +168,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
                   {/* Close button */}
                   <button
                     onClick={handleClose}
-                    className="ml-3 flex-shrink-0 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    className="ml-2 md:ml-3 flex-shrink-0 p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                     aria-label="Close error message"
                   >
                     <XMarkIcon className="w-4 h-4" />

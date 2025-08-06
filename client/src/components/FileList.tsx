@@ -115,7 +115,7 @@ export const FileList: React.FC<FileListProps> = ({
     return (
       <div key={node.path}>
         <div
-          className={`flex items-center py-3 px-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group ${
+          className={`flex items-center py-2 md:py-3 px-3 md:px-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group ${
             node.file && isSelected
               ? "bg-gradient-to-r from-blue-100 to-indigo-100 shadow-sm"
               : ""
