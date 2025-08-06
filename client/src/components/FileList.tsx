@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from "react";
 import type { CodeFile, FileTreeNode } from "../types";
+import {
+  ChevronRightIcon,
+  FolderIcon,
+  DocumentIcon,
+  ArrowPathIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/24/outline";
+import { FolderOpenIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 
 interface FileListProps {
   files: CodeFile[];
@@ -102,78 +110,75 @@ export const FileList: React.FC<FileListProps> = ({
   const renderFileTreeNode = (node: FileTreeNode, depth: number = 0) => {
     const isExpanded = expandedFolders.has(node.path);
     const isSelected = node.file ? selectedFiles.has(node.path) : false;
-    const paddingLeft = depth * 20 + 12;
+    const paddingLeft = depth * 24 + 16;
 
     return (
       <div key={node.path}>
         <div
-          className={`flex items-center py-2 px-3 hover:bg-gray-50 ${
-            node.file && isSelected ? "bg-blue-50" : ""
+          className={`flex items-center py-3 px-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group ${
+            node.file && isSelected
+              ? "bg-gradient-to-r from-blue-100 to-indigo-100 shadow-sm"
+              : ""
           }`}
           style={{ paddingLeft: `${paddingLeft}px` }}
         >
           {node.type === "folder" ? (
             <button
               onClick={() => toggleFolder(node.path)}
-              className="flex items-center flex-1 text-left hover:bg-gray-100 rounded-lg py-1 px-2 -mx-2 transition-colors duration-200"
+              className="flex items-center flex-1 text-left hover:bg-blue-50 rounded-xl py-2 px-3 -mx-3 transition-all duration-300 hover-lift group"
             >
-              <svg
-                className={`w-4 h-4 mr-2 text-gray-500 transition-transform duration-200 ${
-                  isExpanded ? "rotate-90" : "rotate-0"
+              <ChevronRightIcon
+                className={`w-5 h-5 mr-3 text-gray-500 transition-all duration-300 group-hover:text-blue-500 ${
+                  isExpanded ? "rotate-90 text-blue-500" : "rotate-0"
                 }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-              <svg
-                className="w-4 h-4 mr-2 text-blue-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-              </svg>
-              <span className="font-medium text-gray-700">{node.name}</span>
-              <span className="ml-2 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+              />
+              {isExpanded ? (
+                <FolderOpenIcon className="w-5 h-5 mr-3 text-blue-500 group-hover:text-blue-600" />
+              ) : (
+                <FolderIcon className="w-5 h-5 mr-3 text-blue-500 group-hover:text-blue-600" />
+              )}
+              <span className="font-bold text-gray-800 group-hover:text-blue-700 text-base">
+                {node.name}
+              </span>
+              <span className="ml-3 text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full font-semibold group-hover:bg-blue-200">
                 {node.children?.length || 0}
               </span>
             </button>
           ) : (
-            <label className="flex items-center flex-1 cursor-pointer hover:bg-gray-100 rounded-lg py-1 px-2 -mx-2 transition-colors duration-200">
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => node.file && onFileToggle(node.path)}
-                className="mr-3 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <svg
-                className="w-4 h-4 mr-2 text-gray-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                  clipRule="evenodd"
+            <label className="flex items-center flex-1 cursor-pointer hover:bg-blue-50 rounded-xl py-2 px-3 -mx-3 transition-all duration-300 hover-lift group">
+              <div className="relative mr-4">
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => node.file && onFileToggle(node.path)}
+                  className="sr-only"
                 />
-              </svg>
+                <div
+                  className={`w-5 h-5 rounded-lg border-2 transition-all duration-300 flex items-center justify-center ${
+                    isSelected
+                      ? "bg-blue-500 border-blue-500"
+                      : "border-gray-300 group-hover:border-blue-400"
+                  }`}
+                >
+                  {isSelected && (
+                    <CheckCircleIcon className="w-3 h-3 text-white" />
+                  )}
+                </div>
+              </div>
+              <DocumentIcon className="w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
               <div className="flex-1 min-w-0">
-                <span className="text-sm font-medium text-gray-900 truncate">
-                  {node.name}
-                </span>
-                <div className="flex items-center space-x-2 mt-1">
+                <div className="flex items-center space-x-2">
+                  <span className="text-base font-semibold text-gray-900 truncate group-hover:text-blue-700">
+                    {node.name}
+                  </span>
                   {node.file?.language && (
-                    <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-pink-500 px-2 py-1 rounded-full shadow-sm">
                       {node.file.language}
                     </span>
                   )}
-                  <span className="text-xs text-gray-500 font-medium">
+                </div>
+                <div className="flex items-center space-x-3 mt-1">
+                  <span className="text-sm text-gray-600 font-medium">
                     {node.file?.size ? formatFileSize(node.file.size) : ""}
                   </span>
                 </div>
@@ -183,7 +188,7 @@ export const FileList: React.FC<FileListProps> = ({
         </div>
 
         {node.type === "folder" && isExpanded && node.children && (
-          <div>
+          <div className="animate-slide-in-up">
             {node.children.map((child) => renderFileTreeNode(child, depth + 1))}
           </div>
         )}
@@ -193,75 +198,55 @@ export const FileList: React.FC<FileListProps> = ({
 
   if (loading) {
     return (
-      <div className="bg-white border border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6">
-        <div className="flex items-center justify-center">
-          <div className="relative">
-            <div className="w-6 h-6 border-2 border-blue-200 rounded-full animate-spin"></div>
-            <div className="absolute top-0 left-0 w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <span className="ml-3 text-gray-600 font-medium">
-            Loading files...
-          </span>
+      <div className="glass rounded-2xl shadow-professional p-8 text-center">
+        <div className="flex items-center justify-center mb-4">
+          <ArrowPathIcon className="w-8 h-8 text-blue-500 animate-spin" />
         </div>
+        <h3 className="text-lg font-bold text-gray-800 mb-2">Loading Files</h3>
+        <p className="text-gray-600 font-medium">
+          Analyzing repository structure...
+        </p>
       </div>
     );
   }
 
   if (files.length === 0) {
     return (
-      <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6 text-center text-gray-500">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+      <div className="glass rounded-2xl shadow-professional p-8 text-center">
+        <div className="w-20 h-20 mx-auto mb-6 gradient-warning rounded-full flex items-center justify-center">
+          <ExclamationCircleIcon className="w-10 h-10 text-white" />
         </div>
-        <p className="text-sm font-medium">No code files found</p>
-        <p className="text-xs text-gray-400 mt-1">
-          This repository doesn't contain any recognizable code files
+        <h3 className="text-xl font-bold text-gray-800 mb-3">
+          No Code Files Found
+        </h3>
+        <p className="text-gray-600 font-medium max-w-sm mx-auto">
+          This repository doesn't contain any recognizable code files for
+          analysis
         </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-300 rounded-t-xl">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          Repository Files
-          <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-            {files.length}
-          </span>
-        </h3>
-        <p className="text-sm text-gray-600 mt-1">
-          {files.length} code files • {selectedFiles.size} selected
-        </p>
-      </div>
-
-      <div className="max-h-96 overflow-y-auto">
+    <div className="glass rounded-2xl shadow-professional hover:shadow-professional-lg transition-all duration-300 overflow-hidden">
+      <div className="max-h-96 overflow-y-auto custom-scrollbar">
         {fileTree.map((node) => renderFileTreeNode(node))}
       </div>
 
       {selectedFiles.size > 0 && (
-        <div className="bg-blue-50 px-4 py-3 border-t border-gray-300 rounded-b-lg">
+        <div className="glass-dark border-t border-blue-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedFiles.size} files selected
-            </span>
+            <div className="flex items-center space-x-3">
+              <CheckCircleIcon className="w-5 h-5 text-green-500" />
+              <span className="text-lg font-bold text-gray-800">
+                {selectedFiles.size} files selected
+              </span>
+            </div>
             <button
               onClick={() =>
                 selectedFiles.forEach((path) => onFileToggle(path))
               }
-              className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-all duration-200 border border-blue-200 hover:border-blue-300"
+              className="btn-danger text-sm"
             >
               Clear all
             </button>

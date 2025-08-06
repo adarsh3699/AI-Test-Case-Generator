@@ -4,6 +4,15 @@ import { apiService, handleApiError } from "../services/api";
 import { TestSummaries } from "./TestSummaries";
 import { Toast } from "./Toast";
 import { useToast } from "../hooks/useToast";
+import {
+  XMarkIcon,
+  DocumentIcon,
+  BoltIcon,
+  ExclamationTriangleIcon,
+  TrashIcon,
+  EyeIcon,
+} from "@heroicons/react/24/outline";
+import { SparklesIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 
 interface SelectedFilesPanelProps {
   files: CodeFile[];
@@ -128,94 +137,65 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
     setError(null);
   };
 
-  if (selectedFiles.size === 0) {
-    return (
-      <div className="bg-white border border-gray-300 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Selected Files
-        </h3>
-        <div className="text-center text-gray-500">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </div>
-          <p className="text-sm">No files selected</p>
-          <p className="text-xs text-gray-400 mt-1">
-            Select files from the repository to see them here
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+  // Component is only rendered when files are selected
   return (
     <>
-      <div className="bg-white border border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-        <div className="bg-gray-50 px-4 py-3 border-b border-gray-300 rounded-t-lg">
+      <div className="glass rounded-3xl shadow-professional-xl hover:shadow-professional-xl transition-all duration-300 overflow-hidden border border-white/20">
+        <div className="card-header bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">
-                Selected Files
-              </h3>
-              <p className="text-sm text-gray-600">
-                {selectedFiles.size} files • {formatSize(getTotalSize())}
-              </p>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center justify-center w-12 h-12 gradient-primary rounded-2xl">
+                <DocumentIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                  Selected Files
+                  <span className="ml-4 px-4 py-2 gradient-success text-white text-sm font-bold rounded-2xl shadow-lg">
+                    {selectedFiles.size}
+                  </span>
+                </h3>
+                <p className="text-gray-600 font-medium mt-1">
+                  Total size: {formatSize(getTotalSize())}
+                </p>
+              </div>
             </div>
             <button
               onClick={onClearAll}
-              className="px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-300"
+              className="btn-danger flex items-center space-x-2"
             >
-              Clear All
+              <TrashIcon className="w-4 h-4" />
+              <span>Clear All</span>
             </button>
           </div>
         </div>
 
-        <div className="max-h-64 overflow-y-auto">
-          {selectedFilesList.map((file) => (
+        <div className="max-h-80 overflow-y-auto custom-scrollbar">
+          {selectedFilesList.map((file, index) => (
             <div
               key={file.path}
-              className="flex items-center justify-between p-4 border-b border-gray-100 last:border-b-0 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-colors duration-200 group"
+              className={`flex items-center justify-between p-6 border-b border-gray-100 last:border-b-0 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group ${
+                index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+              }`}
             >
-              <div className="flex items-center flex-1 min-w-0">
+              <div className="flex items-center flex-1 min-w-0 space-x-4">
                 <button
                   onClick={() => onFileToggle(file.path)}
-                  className="flex-shrink-0 mr-3 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                  className="flex-shrink-0 p-2 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-xl transition-all duration-300 hover-lift"
                   title="Remove file"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <XMarkIcon className="w-5 h-5" />
                 </button>
 
+                <DocumentIcon className="w-6 h-6 text-blue-500 flex-shrink-0" />
+
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-900 truncate">
+                  <div className="flex items-center space-x-3">
+                    <span className="font-bold text-gray-900 truncate text-lg">
                       {file.path.split("/").pop()}
                     </span>
                     {file.language && (
                       <span
-                        className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${getLanguageColor(
+                        className={`px-3 py-1 text-sm font-bold rounded-full shadow-sm ${getLanguageColor(
                           file.language
                         )}`}
                       >
@@ -223,67 +203,73 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500 truncate mt-1">
+                  <div className="text-sm text-gray-600 truncate mt-1 font-medium">
                     {file.path}
                   </div>
                 </div>
               </div>
 
-              <div className="flex-shrink-0 ml-4 text-right">
-                <div className="text-sm text-gray-500">
-                  {formatSize(file.size)}
+              <div className="flex items-center space-x-4 flex-shrink-0 ml-6">
+                <div className="text-right">
+                  <div className="text-sm font-bold text-gray-700">
+                    {formatSize(file.size)}
+                  </div>
+                  {file.download_url && (
+                    <a
+                      href={file.download_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 font-medium hover-lift"
+                      title="View on GitHub"
+                    >
+                      <EyeIcon className="w-4 h-4" />
+                      <span>View</span>
+                    </a>
+                  )}
                 </div>
-                {file.download_url && (
-                  <a
-                    href={file.download_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:text-blue-800"
-                    title="View on GitHub"
-                  >
-                    View
-                  </a>
-                )}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-blue-50 px-4 py-3 border-t border-gray-300 rounded-b-lg">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-blue-900">
-              <span className="font-medium">{selectedFiles.size}</span> files
-              selected
-              <span className="ml-2 text-blue-700">
-                • {formatSize(getTotalSize())}
-              </span>
+        <div className="glass-dark border-t border-blue-200 px-8 py-8">
+          <div className="text-center">
+            <div className="mb-6">
+              <h4 className="text-xl font-bold text-gray-800 mb-3">
+                Ready to Generate AI Test Cases
+              </h4>
+              <p className="text-lg text-gray-700 font-medium mb-4">
+                Transform your selected files into comprehensive test suites
+              </p>
+              <div className="flex items-center justify-center space-x-6 text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="status-online"></div>
+                  <span className="font-bold text-gray-700">
+                    {selectedFiles.size} files
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="status-online"></div>
+                  <span className="font-bold text-gray-700">
+                    {formatSize(getTotalSize())}
+                  </span>
+                </div>
+              </div>
             </div>
             <button
               onClick={generateTestSummaries}
               disabled={loading || selectedFiles.size === 0}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none disabled:shadow-none"
+              className="btn-primary text-xl px-12 py-6 shadow-professional-xl hover:shadow-professional-xl animate-pulse-glow disabled:animate-none flex items-center space-x-3 mx-auto"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                  Generating...
+                  <BoltIcon className="w-6 h-6 animate-spin" />
+                  <span>Generating AI Test Summaries...</span>
                 </>
               ) : (
                 <>
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                    />
-                  </svg>
-                  Generate Test Summaries
+                  <SparklesIcon className="w-6 h-6" />
+                  <span>Generate AI Test Summaries</span>
                 </>
               )}
             </button>
@@ -292,39 +278,18 @@ export const SelectedFilesPanel: React.FC<SelectedFilesPanelProps> = ({
 
         {/* Error Display */}
         {error && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="mt-6 glass border-l-4 border-red-500 rounded-2xl p-6 animate-slide-in-up">
             <div className="flex items-center">
-              <svg
-                className="w-5 h-5 text-red-400 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span className="text-red-800 text-sm">{error}</span>
+              <ExclamationTriangleIcon className="w-6 h-6 text-red-500 mr-4" />
+              <div className="flex-1">
+                <h4 className="font-bold text-red-800 mb-1">Error Occurred</h4>
+                <span className="text-red-700 font-medium">{error}</span>
+              </div>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red-600 hover:text-red-800"
+                className="ml-4 p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-xl transition-all duration-300 hover-lift"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
           </div>

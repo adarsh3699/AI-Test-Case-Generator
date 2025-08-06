@@ -3,6 +3,16 @@ import type { TestSummary, GenerateCodeRequest } from "../types";
 import { apiService, handleApiError } from "../services/api";
 import { Toast } from "./Toast";
 import { useToast } from "../hooks/useToast";
+import {
+  LightBulbIcon,
+  DocumentDuplicateIcon,
+  CodeBracketIcon,
+  XMarkIcon,
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
+  CloudArrowDownIcon,
+} from "@heroicons/react/24/outline";
+import { SparklesIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 
 interface TestSummariesProps {
   summaries: TestSummary[];
@@ -129,96 +139,91 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
   };
   if (loading) {
     return (
-      <div className="bg-white border border-gray-300 rounded-lg p-6">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full mr-3"></div>
-          <span className="text-gray-600">Generating test summaries...</span>
+      <div className="glass rounded-3xl shadow-professional-lg p-10 text-center">
+        <div className="flex items-center justify-center mb-6">
+          <ArrowPathIcon className="w-10 h-10 text-blue-500 animate-spin" />
         </div>
-        <p className="text-sm text-gray-500 text-center mt-2">
-          This may take a few moments while AI analyzes your files
+        <h3 className="text-2xl font-bold text-gray-800 mb-3">
+          Generating Test Summaries
+        </h3>
+        <p className="text-lg text-gray-600 font-medium">
+          Our AI is analyzing your files to create comprehensive test
+          suggestions
         </p>
+        <div className="mt-6 flex items-center justify-center space-x-4">
+          <div className="status-loading"></div>
+          <span className="text-gray-600 font-medium">
+            This may take a few moments
+          </span>
+        </div>
       </div>
     );
   }
 
   if (summaries.length === 0) {
     return (
-      <div className="bg-white border border-gray-300 rounded-lg p-6">
-        <div className="text-center text-gray-500">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No Test Summaries Yet
-          </h3>
-          <p className="text-sm">
-            Select files and click "Generate Test Summaries" to see AI-powered
-            test suggestions
-          </p>
+      <div className="glass rounded-3xl shadow-professional-lg p-10 text-center">
+        <div className="w-24 h-24 mx-auto mb-8 gradient-info rounded-full flex items-center justify-center animate-float">
+          <LightBulbIcon className="w-12 h-12 text-white" />
         </div>
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">
+          No Test Summaries Yet
+        </h3>
+        <p className="text-lg text-gray-600 font-medium max-w-md mx-auto">
+          Select files and click "Generate Test Summaries" to see AI-powered
+          test suggestions
+        </p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="bg-white border border-gray-300 rounded-lg">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-300 rounded-t-lg">
+      <div className="glass rounded-3xl shadow-professional-xl overflow-hidden border border-white/20 animate-slide-in-up">
+        <div className="card-header bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                <svg
-                  className="w-5 h-5 text-blue-600 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  />
-                </svg>
-                AI Test Summaries
-              </h3>
-              <div className="flex items-center mt-1 space-x-4 text-sm text-gray-600">
-                <span>{summaries.length} suggestions</span>
-                {aiProvider && (
-                  <span className="flex items-center">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                    {aiProvider}
-                  </span>
-                )}
-                {generatedAt && (
-                  <span>
-                    Generated {new Date(generatedAt).toLocaleTimeString()}
-                  </span>
-                )}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center justify-center w-12 h-12 gradient-secondary rounded-2xl">
+                <SparklesIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                  AI Test Summaries
+                </h3>
+                <div className="flex items-center mt-2 space-x-6 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                    <span className="font-bold text-gray-700">
+                      {summaries.length} suggestions
+                    </span>
+                  </div>
+                  {aiProvider && (
+                    <div className="flex items-center space-x-2">
+                      <div className="status-online"></div>
+                      <span className="font-bold text-gray-700">
+                        {aiProvider}
+                      </span>
+                    </div>
+                  )}
+                  {generatedAt && (
+                    <span className="text-gray-600 font-medium">
+                      Generated {new Date(generatedAt).toLocaleTimeString()}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <button
               onClick={onClear}
-              className="text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 px-3 py-1 rounded transition-colors"
+              className="btn-secondary text-sm flex items-center space-x-2"
             >
-              Clear
+              <XMarkIcon className="w-4 h-4" />
+              <span>Clear</span>
             </button>
           </div>
         </div>
 
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-80 overflow-y-auto custom-scrollbar">
           {summaries.map((summary, index) => {
             const generatedCode = generatedCodes.get(summary.summaryId);
             const isLoadingCode = loadingCode.has(summary.summaryId);
@@ -227,59 +232,48 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
             return (
               <div
                 key={summary.summaryId}
-                className={`border-b border-gray-100 last:border-b-0 ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                className={`border-b border-gray-100 last:border-b-0 transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
                 }`}
               >
                 {/* Summary Section */}
-                <div className="p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 mr-3">
-                      <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
+                <div className="p-6 group">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 gradient-primary text-white rounded-2xl flex items-center justify-center text-sm font-bold shadow-lg">
                         {index + 1}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 text-sm leading-relaxed">
+                      <p className="text-gray-900 text-lg leading-relaxed font-medium">
                         {summary.summaryText}
                       </p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-gray-500 font-mono">
-                          ID: {summary.summaryId}
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-1 rounded-lg">
+                          ID: {summary.summaryId.slice(0, 8)}...
                         </span>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <button
                             onClick={() => copyCode(summary.summaryText)}
-                            className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
+                            className="btn-secondary text-sm flex items-center space-x-2"
                           >
-                            Copy Summary
+                            <DocumentDuplicateIcon className="w-4 h-4" />
+                            <span>Copy Summary</span>
                           </button>
                           <button
                             onClick={() => generateTestCode(summary)}
                             disabled={isLoadingCode}
-                            className="text-xs bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 px-3 py-1 rounded transition-colors flex items-center"
+                            className="btn-success text-sm flex items-center space-x-2"
                           >
                             {isLoadingCode ? (
                               <>
-                                <div className="animate-spin h-3 w-3 border border-white border-t-transparent rounded-full mr-1"></div>
-                                Generating...
+                                <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                                <span>Generating...</span>
                               </>
                             ) : (
                               <>
-                                <svg
-                                  className="w-3 h-3 mr-1"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                                  />
-                                </svg>
-                                Generate Code
+                                <CodeBracketIcon className="w-4 h-4" />
+                                <span>Generate Code</span>
                               </>
                             )}
                           </button>
@@ -291,42 +285,23 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
 
                 {/* Code Error Section */}
                 {codeError && (
-                  <div className="px-4 pb-4">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="px-6 pb-6">
+                    <div className="glass border-l-4 border-red-500 rounded-xl p-4">
                       <div className="flex items-center">
-                        <svg
-                          className="w-4 h-4 text-red-400 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-red-800 text-xs">
-                          {codeError}
-                        </span>
+                        <ExclamationTriangleIcon className="w-5 h-5 text-red-500 mr-3" />
+                        <div className="flex-1">
+                          <h5 className="font-bold text-red-800 mb-1">
+                            Code Generation Failed
+                          </h5>
+                          <span className="text-red-700 text-sm font-medium">
+                            {codeError}
+                          </span>
+                        </div>
                         <button
                           onClick={() => clearGeneratedCode(summary.summaryId)}
-                          className="ml-auto text-red-600 hover:text-red-800"
+                          className="ml-4 p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-xl transition-all duration-300 hover-lift"
                         >
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
+                          <XMarkIcon className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -335,61 +310,50 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
 
                 {/* Generated Code Section */}
                 {generatedCode && (
-                  <div className="border-t border-gray-200 bg-gray-50">
-                    <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="border-t border-purple-200 glass-dark">
+                    <div className="px-6 py-4 border-b border-purple-200">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                            <span className="text-sm font-medium text-gray-900">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                            <span className="text-lg font-bold text-gray-900">
                               Generated Test Code
                             </span>
                           </div>
-                          <div className="flex items-center space-x-2 text-xs text-gray-600">
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          <div className="flex items-center space-x-3 text-sm">
+                            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold">
                               {generatedCode.language}
                             </span>
-                            <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                            <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-bold">
                               {generatedCode.testFramework}
                             </span>
-                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                            <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full font-bold">
                               {generatedCode.aiProvider}
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <button
                             onClick={() => copyCode(generatedCode.code)}
-                            className="text-xs bg-blue-600 text-white hover:bg-blue-700 px-3 py-1 rounded transition-colors flex items-center"
+                            className="btn-primary text-sm flex items-center space-x-2"
                           >
-                            <svg
-                              className="w-3 h-3 mr-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                              />
-                            </svg>
-                            Copy Code
+                            <DocumentDuplicateIcon className="w-4 h-4" />
+                            <span>Copy Code</span>
                           </button>
                           <button
                             onClick={() =>
                               clearGeneratedCode(summary.summaryId)
                             }
-                            className="text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                            className="btn-secondary text-sm flex items-center space-x-2"
                           >
-                            Clear
+                            <XMarkIcon className="w-4 h-4" />
+                            <span>Clear</span>
                           </button>
                         </div>
                       </div>
                     </div>
-                    <div className="p-4">
-                      <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
+                    <div className="p-6">
+                      <pre className="bg-gray-900 text-gray-100 p-6 rounded-2xl text-sm overflow-x-auto shadow-professional-lg">
                         <code className="language-javascript">
                           {generatedCode.code}
                         </code>
@@ -402,14 +366,18 @@ export const TestSummaries: React.FC<TestSummariesProps> = ({
           })}
         </div>
 
-        <div className="bg-gray-50 px-4 py-3 border-t border-gray-300 rounded-b-lg">
-          <div className="flex items-center justify-between text-sm">
-            <div className="text-gray-600">
-              💡 These are AI-generated suggestions. Review and adapt them for
-              your specific testing needs.
+        <div className="glass-dark border-t border-purple-200 px-8 py-6 rounded-b-3xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 text-gray-700">
+              <LightBulbIcon className="w-5 h-5 text-yellow-500" />
+              <span className="font-medium">
+                These are AI-generated suggestions. Review and adapt them for
+                your specific testing needs.
+              </span>
             </div>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-              Export All
+            <button className="btn-primary flex items-center space-x-2">
+              <CloudArrowDownIcon className="w-4 h-4" />
+              <span>Export All</span>
             </button>
           </div>
         </div>
